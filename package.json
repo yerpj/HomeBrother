@@ -1,9 +1,0 @@
-{
-  "name": "LaVueServer",
-  "version": "0.1.0",
-  "dependencies": {
-    "express": "^4.13.3",
-    "serialport": "^2.0.5",
-    "socket.io": "1.0.x"
-  }
-}
