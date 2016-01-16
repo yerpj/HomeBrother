@@ -38,8 +38,8 @@
 			socket.on('connect',function(){
 				PrintDebugConsole('Server connected');
 			});
-			socket.on('LoggerData', function (data) {
-				LiveGraphUpdate(data);
+			socket.on('data', function (data) {
+				DataUpdate(data);
 				//socket.emit('Ack', "LoggerData OK");
 			});
 			socket.on('DebugMessage', function (data) {
@@ -48,6 +48,24 @@
 			socket.on('disconnect',function(){
 				PrintDebugConsole('Server disconnected');
 			});
+			
+			function DataUpdate(data){
+				console.log("new data: "+JSON.stringify(data);
+				if(document.getElementById(data.device+"_"+data.dataPoint)){
+					console.log("element still exists");
+					document.getElementById(data.device+"_"+data.dataPoint).value=data.dataValue;
+				}
+				else
+				{
+					console.log("new element");
+					var meter = document.createElement("METER");
+					meter.id=data.device+"_"+data.dataPoint;
+					meter.type = data.datapoint;
+					meter.value=data.dataValue;
+					document.body.appendChild(meter);
+				}
+				
+			}
 			
 			function PrintDebugConsole(data){
 				while( (DebugBox.value.length>300) && (DebugBox.value.indexOf('\n')!=-1) )

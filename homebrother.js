@@ -5,7 +5,7 @@
 
 
 //generic vars
-var COMPort='COM60';
+var COMPort='COM18';
 var Baudrate=115200;
 var PORT=80;
 var MAINFILE='index.html';
@@ -63,7 +63,7 @@ io.on('connection',function(socket){
 		console.log("Websocket disconnected");
 		socket.removeAllListeners('Ack');
 		wsConnected=false;
-  });
+	});
 });
 io.set('transports',  ['websocket', 'polling']);
 
@@ -80,15 +80,22 @@ function AppCmdSendToDevice(cmd){
 
 function AppCmdDispatch(input){
 	console.log("raw input: "+input);
-	if(input.indexOf('Project')>-1){
-		var data=JSON.parse(input);
-		console.log("project.revision: "+data.Project.revision);
-		console.log("project.author: "+data.Project.author);
-		console.log("system.time: "+data.system.time);
+	var message=JSON.parse(input);
+	var dataFields;
+	for( i in message){
+		console.log(i+" :"+message[i]);
 	}
-	else if(input.indexOf('moisture')>-1){
-		var data=JSON.parse(input);
-		console.log("data: "+data.moisture);
+	if(message.type=='data')
+	{
+		console.log("data coming from device "+message.device);
+		if(wsConnected)
+			io.emit('data',message);
+		else
+			console.log('no websocket to send data to, skipping');
+		}
+	else if(message.type='cmd')
+	{
+		console.log("type=cmd");
 	}
 }
 
@@ -119,10 +126,13 @@ COMPort.open(function(err){
 		console.log('failed to open '+COMName+" :"+err);
 	}
 	else{	
+		console.log(COMName+' open');
 		COMPortValid=true;
 		COMPort.on('data',COMcb);
 		
 		setTimeout(function(){AppCmdSendToDevice("sw info\n");},3000);
+		setTimeout(function(){AppCmdSendToDevice("sw temp\n");},4000);
+		setTimeout(function(){AppCmdSendToDevice("sw lumi\n");},5000);
 	}
 });
 
